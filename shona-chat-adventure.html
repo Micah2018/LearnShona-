@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's Speak Shona!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night: #241A1D;
+    --panel: #33242A;
+    --gold: #E8A33D;
+    --clay: #A6432E;
+    --leaf: #3D7A5C;
+    --teal: #1E9E8B;
+    --cream: #FBF3E7;
+    --sand: #D9C4A3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:
+      repeating-linear-gradient(135deg, rgba(232,163,61,0.05) 0 12px, transparent 12px 24px),
+      radial-gradient(circle at 15% 0%, #3E2A28 0%, var(--night) 55%);
+    font-family:'Nunito', sans-serif; color: var(--cream);
+    overflow-x:hidden;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:20px 16px 60px; }
+  header{ text-align:center; margin-bottom:12px; }
+  h1{ font-family:'Fredoka', sans-serif; font-size:1.8rem; margin:6px 0 2px; color: var(--gold); }
+  .subtitle{ font-size:.9rem; color: var(--sand); margin:0; }
+
+  .track-row{ display:flex; gap:8px; justify-content:center; margin: 16px 0 10px; }
+  .track-btn{
+    font-family:'Fredoka', sans-serif; font-size:1rem; padding:10px 20px; border-radius:999px;
+    border:2px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: var(--cream); cursor:pointer;
+  }
+  .track-btn.active{ background: var(--clay); border-color: var(--clay); color: #fff; }
+
+  nav.cats{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin: 4px 0 14px; }
+  .cat-btn{
+    font-family:'Nunito', sans-serif; font-weight:800; font-size:.82rem; padding:8px 14px; border-radius:999px;
+    border:2px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: var(--sand); cursor:pointer;
+  }
+  .cat-btn.active{ background: var(--teal); border-color: var(--teal); color:#0A2622; }
+
+  .progress-shell{ background: rgba(255,255,255,.08); border-radius:999px; height:16px; margin: 6px 0 4px; border:2px solid rgba(255,255,255,.12); overflow:hidden; }
+  .progress-fill{ height:100%; background: linear-gradient(90deg, var(--clay), var(--gold)); border-radius:999px; transition: width .5s ease; }
+  .star-count{ text-align:center; font-family:'Fredoka', sans-serif; color: var(--gold); font-size:1rem; margin-bottom:4px; }
+
+  .card{ background: var(--panel); border-radius:22px; padding:24px 20px; box-shadow:0 10px 28px rgba(0,0,0,.35); border:2px solid rgba(255,255,255,.06); margin-top:14px; }
+
+  .mode-row{ display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
+  .mode-btn{ font-family:'Fredoka', sans-serif; font-size:.9rem; padding:8px 16px; border-radius:999px; border:2px solid rgba(255,255,255,.15); background:transparent; color: var(--sand); cursor:pointer; }
+  .mode-btn.active{ background: var(--gold); color:#3E2500; border-color: var(--gold); }
+
+  .flash-word{ text-align:center; font-family:'Fredoka', sans-serif; font-size:2.2rem; color: var(--gold); margin: 4px 0 2px; }
+  .flash-emoji{ text-align:center; font-size:3rem; margin-bottom:6px; }
+  .flash-english{ text-align:center; font-size:1.2rem; color: var(--cream); min-height:1.5em; }
+  .flash-phonetic{ text-align:center; font-size:.95rem; color: var(--teal); font-style:italic; min-height:1.3em; }
+  .flash-progress{ text-align:center; color: var(--sand); font-size:.82rem; margin-bottom:10px; }
+
+  .controls{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  button.action{
+    font-family:'Fredoka', sans-serif; font-size:1rem; border:none; padding:12px 22px; border-radius:999px;
+    cursor:pointer; font-weight:600;
+  }
+  .btn-reveal{ background: var(--teal); color:#062E29; }
+  .btn-gotit{ background: var(--gold); color:#3E2500; }
+  .btn-next{ background: var(--clay); color:#fff; }
+  button.action:disabled{ opacity:.4; }
+
+  .option-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .option-btn{
+    font-family:'Fredoka', sans-serif; font-size:1.05rem; padding:14px 8px; border-radius:14px; text-align:center;
+    background: var(--cream); color: var(--night); border:3px solid transparent; cursor:pointer;
+  }
+  .option-btn.correct{ background:#7BD389; border-color:#3F9450; }
+  .option-btn.wrong{ background:#F3A6A0; border-color:#C15A52; }
+
+  .feedback{ text-align:center; min-height:44px; margin-top:14px; font-size:.95rem; }
+  .feedback .fact{ background: rgba(232,163,61,.14); border:1px dashed var(--gold); border-radius:14px; padding:9px 14px; display:inline-block; }
+
+  /* Chat Corner */
+  .bubble{ background: rgba(255,255,255,.08); border-radius:16px 16px 16px 4px; padding:14px 16px; margin: 10px auto 4px; max-width:90%; }
+  .bubble .shona{ font-family:'Fredoka', sans-serif; font-size:1.3rem; color: var(--gold); }
+  .bubble .eng{ font-size:.85rem; color: var(--sand); margin-top:2px; }
+  .avatar{ text-align:center; font-size:2.2rem; margin-bottom:2px; }
+  .reply-list{ display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .reply-btn{
+    font-family:'Nunito', sans-serif; text-align:left; padding:12px 14px; border-radius:14px;
+    background: var(--cream); color: var(--night); border:3px solid transparent; cursor:pointer;
+  }
+  .reply-btn .rs{ font-family:'Fredoka', sans-serif; font-size:1.05rem; display:block; }
+  .reply-btn .re{ font-size:.8rem; color:#5a4a44; }
+  .reply-btn.correct{ background:#7BD389; border-color:#3F9450; }
+  .reply-btn.wrong{ background:#F3A6A0; border-color:#C15A52; }
+
+  .finale{ text-align:center; padding:26px 10px; }
+  .finale .big{ font-size:3.4rem; display:block; margin-bottom:6px; }
+  .finale h2{ font-family:'Fredoka', sans-serif; color: var(--gold); font-size:1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div style="font-size:2.2rem;">🥁</div>
+    <h1>Let's Speak Shona!</h1>
+    <p class="subtitle" id="subtitleText">Learn real words, then use them in a chat</p>
+  </header>
+
+  <div class="track-row">
+    <button class="track-btn" id="trackRemi" onclick="switchTrack('remi')">🌟 Remi</button>
+    <button class="track-btn" id="trackMicah" onclick="switchTrack('micah')">🚀 Micah</button>
+  </div>
+
+  <nav class="cats" id="catsNav"></nav>
+
+  <div class="star-count" id="starCount">⭐ 0 stars</div>
+  <div class="progress-shell"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div id="game"></div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+/* Sourced from Omniglot's Shona phrasebook, Polyglot Club, Sarura Kids,
+   Wisc LCTL Shona resources, and Wiktionary's Shona days-of-the-week category.
+   Phonetic guides are simplified English approximations, not IPA — great for
+   a first go, but a native speaker (like Rumbidzai!) is the best final check. */
+
+const WORDS = [
+  // Greetings — both tracks
+  { shona:'Mhoro', english:'Hello', phonetic:'MHOH-roh', category:'Greetings', emoji:'👋', level:'both' },
+  { shona:'Mangwanani', english:'Good morning', phonetic:'mahn-gwah-NAH-nee', category:'Greetings', emoji:'🌅', level:'both' },
+  { shona:'Masikati', english:'Good afternoon', phonetic:'mah-see-KAH-tee', category:'Greetings', emoji:'☀️', level:'both' },
+  { shona:'Manheru', english:'Good evening', phonetic:'mahn-HEH-roo', category:'Greetings', emoji:'🌆', level:'both' },
+  { shona:'Ndatenda', english:'Thank you', phonetic:'ndah-TEHN-dah', category:'Greetings', emoji:'🙏', level:'both' },
+  { shona:'Ehe', english:'Yes', phonetic:'EH-heh', category:'Greetings', emoji:'✅', level:'both' },
+  { shona:'Kwete', english:'No', phonetic:'KWEH-teh', category:'Greetings', emoji:'🚫', level:'both' },
+  { shona:'Ndapota', english:'Please', phonetic:'ndah-POH-tah', category:'Greetings', emoji:'🤲', level:'micah' },
+  { shona:'Zvakanaka', english:"It's good / You're welcome", phonetic:'zvah-kah-NAH-kah', category:'Greetings', emoji:'😊', level:'micah' },
+  { shona:'Urare zvakanaka', english:'Good night', phonetic:'oo-RAH-reh zvah-kah-NAH-kah', category:'Greetings', emoji:'🌙', level:'both' },
+  { shona:'Sara zvakanaka', english:'Goodbye (stay well)', phonetic:'SAH-rah zvah-kah-NAH-kah', category:'Greetings', emoji:'👋', level:'both' },
+  { shona:'Une makore mangani?', english:'How old are you?', phonetic:'OO-neh mah-KOH-reh mah-NGAH-nee', category:'Greetings', emoji:'🎂', level:'both' },
+  { shona:'Ndine makore mashanu', english:"I'm five years old", phonetic:'NDEE-neh mah-KOH-reh mah-SHAH-noo', category:'Greetings', emoji:'🎂', level:'both', personalTo:'remi' },
+  { shona:'Ndine makore matanhatu', english:"I'm six years old", phonetic:'NDEE-neh mah-KOH-reh mah-tahn-HAH-too', category:'Greetings', emoji:'🎂', level:'both', personalTo:'remi' },
+  { shona:'Ndine makore masere', english:"I'm eight years old", phonetic:'NDEE-neh mah-KOH-reh mah-SEH-reh', category:'Greetings', emoji:'🎂', level:'both', personalTo:'micah' },
+
+  // Numbers — Remi gets 1-5, Micah gets 1-10
+  { shona:'Motsi', english:'One', phonetic:'MOH-tsee', category:'Numbers', emoji:'1️⃣', level:'both' },
+  { shona:'Piri', english:'Two', phonetic:'PEE-ree', category:'Numbers', emoji:'2️⃣', level:'both' },
+  { shona:'Tatu', english:'Three', phonetic:'TAH-too', category:'Numbers', emoji:'3️⃣', level:'both' },
+  { shona:'China', english:'Four', phonetic:'CHEE-nah', category:'Numbers', emoji:'4️⃣', level:'both' },
+  { shona:'Shanu', english:'Five', phonetic:'SHAH-noo', category:'Numbers', emoji:'5️⃣', level:'both' },
+  { shona:'Tanhatu', english:'Six', phonetic:'tahn-HAH-too', category:'Numbers', emoji:'6️⃣', level:'micah' },
+  { shona:'Nomwe', english:'Seven', phonetic:'NOH-mweh', category:'Numbers', emoji:'7️⃣', level:'micah' },
+  { shona:'Sere', english:'Eight', phonetic:'SEH-reh', category:'Numbers', emoji:'8️⃣', level:'micah' },
+  { shona:'Pfumbamwe', english:'Nine', phonetic:'pfoom-BAH-mweh', category:'Numbers', emoji:'9️⃣', level:'micah' },
+  { shona:'Gumi', english:'Ten', phonetic:'GOO-mee', category:'Numbers', emoji:'🔟', level:'both' },
+
+  // Colours
+  { shona:'Tsvuku', english:'Red', phonetic:'TSVOO-koo', category:'Colours', emoji:'🔴', level:'both' },
+  { shona:'Chena', english:'White', phonetic:'CHEH-nah', category:'Colours', emoji:'⚪', level:'both' },
+  { shona:'Nhema', english:'Black', phonetic:'NHEH-mah', category:'Colours', emoji:'⚫', level:'both' },
+  { shona:'Girini', english:'Green', phonetic:'gee-REE-nee', category:'Colours', emoji:'🟢', level:'both' },
+  { shona:'Bhuruu', english:'Blue', phonetic:'boo-ROO', category:'Colours', emoji:'🔵', level:'both' },
+  { shona:'Yero', english:'Yellow', phonetic:'YEH-roh', category:'Colours', emoji:'🟡', level:'micah' },
+  { shona:'Bhurauni', english:'Brown', phonetic:'boo-rah-OO-nee', category:'Colours', emoji:'🟤', level:'micah' },
+
+  // Family
+  { shona:'Baba', english:'Father', phonetic:'BAH-bah', category:'Family', emoji:'👨', level:'both' },
+  { shona:'Amai', english:'Mother', phonetic:'ah-MAH-ee', category:'Family', emoji:'👩', level:'both' },
+  { shona:'Mwana', english:'Child', phonetic:'MWAH-nah', category:'Family', emoji:'🧒', level:'both' },
+  { shona:'Mukomana', english:'Boy', phonetic:'moo-koh-MAH-nah', category:'Family', emoji:'👦', level:'both' },
+  { shona:'Musikana', english:'Girl', phonetic:'moo-see-KAH-nah', category:'Family', emoji:'👧', level:'both' },
+  { shona:'Sekuru', english:'Grandfather', phonetic:'seh-KOO-roo', category:'Family', emoji:'👴', level:'micah' },
+  { shona:'Ambuya', english:'Grandmother', phonetic:'ahm-BOO-yah', category:'Family', emoji:'👵', level:'micah' },
+  { shona:"Munin'ina", english:'Younger sibling', phonetic:"moo-nin-EE-nah", category:'Family', emoji:'🧒', level:'micah' },
+  { shona:'Vazukuru', english:'Grandchildren', phonetic:'vah-zoo-KOO-roo', category:'Family', emoji:'👨‍👩‍👧‍👦', level:'micah' },
+  { shona:'Muri vangani mumhuri menyu?', english:'How many are in your family?', phonetic:'MOO-ree vah-NGAH-nee moo-MHOO-ree MEH-nyoo', category:'Family', emoji:'❓', level:'micah' },
+  { shona:'Baba vako varipi?', english:'Where is your father?', phonetic:'BAH-bah VAH-koh vah-REE-pee', category:'Family', emoji:'❓', level:'micah' },
+  { shona:'Amai vako varipi?', english:'Where is your mother?', phonetic:'ah-MAH-ee VAH-koh vah-REE-pee', category:'Family', emoji:'❓', level:'micah' },
+
+  // Animals
+  { shona:'Imbwa', english:'Dog', phonetic:'EEM-bwah', category:'Animals', emoji:'🐶', level:'both' },
+  { shona:'Katsi', english:'Cat', phonetic:'KAH-tsee', category:'Animals', emoji:'🐱', level:'both' },
+  { shona:'Mombe', english:'Cow', phonetic:'MOHM-beh', category:'Animals', emoji:'🐮', level:'both' },
+  { shona:'Nzou', english:'Elephant', phonetic:'NZOH-oo', category:'Animals', emoji:'🐘', level:'both' },
+  { shona:'Shumba', english:'Lion', phonetic:'SHOOM-bah', category:'Animals', emoji:'🦁', level:'both' },
+  { shona:'Huku', english:'Chicken', phonetic:'HOO-koo', category:'Animals', emoji:'🐔', level:'both' },
+  { shona:'Tsuro', english:'Rabbit', phonetic:'TSOO-roh', category:'Animals', emoji:'🐰', level:'micah' },
+  { shona:'Mbizi', english:'Zebra', phonetic:'MBEE-zee', category:'Animals', emoji:'🦓', level:'micah' },
+  { shona:'Tsoko', english:'Monkey', phonetic:'TSOH-koh', category:'Animals', emoji:'🐒', level:'both' },
+  { shona:'Shiri', english:'Bird', phonetic:'SHEE-ree', category:'Animals', emoji:'🐦', level:'both' },
+  { shona:'Nyoka', english:'Snake', phonetic:'NYOH-kah', category:'Animals', emoji:'🐍', level:'micah' },
+  { shona:'Garwe', english:'Crocodile', phonetic:'GAH-rweh', category:'Animals', emoji:'🐊', level:'micah' },
+  { shona:'Mbada', english:'Leopard', phonetic:'MBAH-dah', category:'Animals', emoji:'🐆', level:'micah' },
+  { shona:'Gudo', english:'Baboon', phonetic:'GOO-doh', category:'Animals', emoji:'🐵', level:'micah' },
+  { shona:'Bere', english:'Hyena', phonetic:'BEH-reh', category:'Animals', emoji:'🐾', level:'micah' },
+  { shona:'Furiramudenga', english:'Giraffe', phonetic:'foo-ree-rah-moo-DEHN-gah', category:'Animals', emoji:'🦒', level:'micah' },
+  { shona:'Toki', english:'Turkey', phonetic:'TOH-kee', category:'Animals', emoji:'🦃', level:'micah' },
+  { shona:'Dhadha', english:'Duck', phonetic:'DHAH-dhah', category:'Animals', emoji:'🦆', level:'both' },
+  { shona:'Mbongoro', english:'Donkey', phonetic:'mboh-NGOH-roh', category:'Animals', emoji:'🐴', level:'micah' },
+
+  // Feelings — Micah only (more abstract)
+  { shona:'Ndinofara', english:"I'm happy", phonetic:'ndee-noh-FAH-rah', category:'Feelings', emoji:'😄', level:'micah' },
+  { shona:'Ndaneta', english:"I'm tired", phonetic:'ndah-NEH-tah', category:'Feelings', emoji:'😴', level:'micah' },
+  { shona:'Ndine nzara', english:"I'm hungry", phonetic:'NDEE-neh NZAH-rah', category:'Feelings', emoji:'🍽️', level:'micah' },
+  { shona:'Ndine nyota', english:"I'm thirsty", phonetic:'NDEE-neh NYOH-tah', category:'Feelings', emoji:'🥤', level:'micah' },
+  { shona:'Ndinosuwa', english:"I'm sad", phonetic:'ndee-noh-SOO-wah', category:'Feelings', emoji:'😢', level:'both' },
+
+  // Senses & Actions — straight from the family's own worksheet (arikuitei.pdf)
+  { shona:'Famba', english:'Walk', phonetic:'FAHM-bah', category:'Senses', emoji:'🚶', level:'both' },
+  { shona:'Kuona', english:'Watch / see', phonetic:'koo-OH-nah', category:'Senses', emoji:'👀', level:'both' },
+  { shona:'Bata', english:'Touch', phonetic:'BAH-tah', category:'Senses', emoji:'✋', level:'both' },
+  { shona:'Ravira', english:'Taste', phonetic:'rah-VEE-rah', category:'Senses', emoji:'👅', level:'micah' },
+  { shona:'Nhuwidza', english:'Smell', phonetic:'nhoo-WEE-dzah', category:'Senses', emoji:'👃', level:'micah' },
+  { shona:'Kunzwa', english:'Listen / hear', phonetic:'koo-NZWAH', category:'Senses', emoji:'👂', level:'micah' },
+];
+
+const CATEGORIES = ['Greetings','Numbers','Colours','Family','Animals','Feelings','Senses'];
+
+// Mini conversations for Chat Corner — real exchanges, sourced from Omniglot's
+// Shona phrasebook. Personalised with Micah & Remi's names where it fits.
+const DIALOGUES = [
+  {
+    prompt:'Mhoro!', promptEng:'Hello!',
+    correct:'Mhoro!', correctEng:'Hello!',
+    distractors:['Gumi!','Ndaneta.'], distractorEng:['Ten!',"I'm tired."],
+    level:'both'
+  },
+  {
+    prompt:'Mangwanani!', promptEng:'Good morning!',
+    correct:'Mangwanani, marara sei?', correctEng:'Good morning, did you sleep well?',
+    distractors:['Tsvuku.','Imbwa!'], distractorEng:['Red.','Dog!'],
+    level:'both'
+  },
+  {
+    prompt:'Masikati!', promptEng:'Good afternoon!',
+    correct:'Masikati, maswera sei?', correctEng:'Good afternoon, how has your day been?',
+    distractors:['Katsi!','Gumi.'], distractorEng:['Cat!','Ten.'],
+    level:'both'
+  },
+  {
+    prompt:'Manheru!', promptEng:'Good evening!',
+    correct:'Manheru, maswera sei?', correctEng:'Good evening, how was your day?',
+    distractors:['Girini.','Shumba!'], distractorEng:['Green.','Lion!'],
+    level:'both'
+  },
+  {
+    prompt:'Urare zvakanaka!', promptEng:'Good night!',
+    correct:'Urare zvakanaka!', correctEng:'Good night to you too!',
+    distractors:['Motsi.','Mombe!'], distractorEng:['One.','Cow!'],
+    level:'both'
+  },
+  {
+    prompt:'Unonzani?', promptEng:"What's your name?",
+    correct:'Ndinonzi Remi.', correctEng:'My name is Remi.',
+    distractors:['Sere.','Bhuruu.'], distractorEng:['Eight.','Blue.'],
+    level:'remi'
+  },
+  {
+    prompt:'Unonzani?', promptEng:"What's your name?",
+    correct:'Ndinonzi Micah.', correctEng:'My name is Micah.',
+    distractors:['Pfumbamwe.','Nzou.'], distractorEng:['Nine.','Elephant.'],
+    level:'micah'
+  },
+  {
+    prompt:'Une makore mangani?', promptEng:'How old are you?',
+    correct:'Ndine makore mashanu. Ko iwe, une makore mangani?', correctEng:"I'm five. And you, how old are you?",
+    distractors:['Ndinofara.','Nzou.'], distractorEng:["I'm happy.",'Elephant.'],
+    level:'remi'
+  },
+  {
+    prompt:'Une makore mangani?', promptEng:'How old are you?',
+    correct:'Ndine makore masere. Ko iwe, une makore mangani?', correctEng:"I'm eight. And you, how old are you?",
+    distractors:['Ndaneta.','Girini.'], distractorEng:["I'm tired.",'Green.'],
+    level:'micah'
+  },
+  {
+    prompt:'Wakadini zvako?', promptEng:'How are you?',
+    correct:'Ndiripo, waita zvako!', correctEng:"I'm fine, thank you!",
+    distractors:['Katsi.','Girini.'], distractorEng:['Cat.','Green.'],
+    level:'both'
+  },
+  {
+    prompt:'Waita zvako!', promptEng:'Thank you!',
+    correct:'Zvakanaka.', correctEng:"You're welcome.",
+    distractors:['Motsi.','Shumba.'], distractorEng:['One.','Lion.'],
+    level:'micah'
+  },
+  {
+    prompt:'Sara zvakanaka!', promptEng:'Goodbye! (stay well)',
+    correct:'Sara zvakanaka!', correctEng:'Goodbye! (stay well)',
+    distractors:['China.','Chena.'], distractorEng:['Four.','White.'],
+    level:'both'
+  },
+];
+
+let track = 'remi';
+let currentCategory = 'Greetings';
+let mode = 'learn'; // 'learn' | 'quiz' | 'chat'
+let stars = 0;
+let sessionProgress = 0; // resets each time a category/chat deck is (re)started — drives the progress bar
+
+// per-session state
+let deck = [];
+let deckIdx = 0;
+let revealed = false;
+let quizOptions = [];
+let quizAnswered = false;
+let chatDeck = [];
+let chatIdx = 0;
+let chatAnswered = false;
+
+const gameEl = document.getElementById('game');
+const starCountEl = document.getElementById('starCount');
+const progressFill = document.getElementById('progressFill');
+const subtitleText = document.getElementById('subtitleText');
+const catsNav = document.getElementById('catsNav');
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function wordsFor(category){
+  // Micah and Remi are on the same skill level, so both tracks see the full
+  // word list — except the two personal "I'm X years old" lines, which
+  // should only show up for the child they're actually true for.
+  return WORDS.filter(w => w.category === category && (!w.personalTo || w.personalTo === track));
+}
+
+function renderCategoryNav(){
+  catsNav.innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-btn ${c===currentCategory?'active':''}" onclick="selectCategory('${c}')">${categoryEmoji(c)} ${c}</button>`
+  ).join('') + `<button class="cat-btn ${currentCategory==='Chat'?'active':''}" onclick="selectCategory('Chat')">💬 Chat Corner</button>`;
+}
+function categoryEmoji(c){
+  return { Greetings:'👋', Numbers:'🔢', Colours:'🎨', Family:'👪', Animals:'🐾', Feelings:'💛', Senses:'✋' }[c] || '';
+}
+
+function switchTrack(t){
+  track = t;
+  document.getElementById('trackRemi').classList.toggle('active', t==='remi');
+  document.getElementById('trackMicah').classList.toggle('active', t==='micah');
+  subtitleText.textContent = t==='remi' ? "Same words, same chats — just Remi's turn" : "Same words, same chats — just Micah's turn";
+  // Only Greetings (personal age line) and Chat Corner (personalised name/age
+  // dialogue) actually differ by track now, so only refresh those — switching
+  // tracks mid-Practice on, say, Animals shouldn't wipe that progress.
+  if(currentCategory === 'Chat' || currentCategory === 'Greetings'){ selectCategory(currentCategory); }
+}
+
+function selectCategory(cat){
+  currentCategory = cat;
+  renderCategoryNav();
+  if(cat === 'Chat'){ mode = 'chat'; startChat(); }
+  else { mode = 'learn'; startDeck(); }
+}
+
+function updateProgress(){
+  starCountEl.textContent = `⭐ ${stars} stars`;
+  const capacity = mode === 'chat' ? chatDeck.length : (deck.length * 2); // learn + quiz pass
+  const pct = capacity ? Math.min(100, (sessionProgress / Math.max(capacity, 6)) * 100) : 0;
+  progressFill.style.width = pct + '%';
+}
+
+/* ================= LEARN / QUIZ (vocabulary) ================= */
+function startDeck(){
+  deck = shuffle(wordsFor(currentCategory));
+  deckIdx = 0;
+  sessionProgress = 0;
+  if(mode === 'learn') renderLearnCard(); else renderQuizCard();
+  updateProgress();
+}
+function setVocabMode(m){
+  mode = m; deckIdx = 0;
+  if(m === 'learn') renderLearnCard(); else renderQuizCard();
+}
+function renderLearnCard(){
+  if(deck.length === 0){ gameEl.innerHTML = `<div class="card"><p class="flash-english" style="text-align:center;">No words in this set yet.</p></div>`; return; }
+  revealed = false;
+  const w = deck[deckIdx];
+  gameEl.innerHTML = `
+    <div class="card">
+      ${modeRowMarkup()}
+      <p class="flash-progress">Card ${deckIdx+1} / ${deck.length}</p>
+      <div class="flash-emoji">${w.emoji}</div>
+      <p class="flash-word">${w.shona}</p>
+      <p class="flash-phonetic" id="phon"></p>
+      <p class="flash-english" id="eng"></p>
+      <div class="controls">
+        <button class="action btn-reveal" onclick="revealCard()">👀 Reveal meaning</button>
+      </div>
+      <div class="controls" id="afterReveal" style="display:none;">
+        <button class="action btn-gotit" onclick="gotIt()">Got it! ⭐</button>
+      </div>
+    </div>`;
+}
+function revealCard(){
+  if(revealed) return;
+  revealed = true;
+  const w = deck[deckIdx];
+  document.getElementById('phon').textContent = w.phonetic;
+  document.getElementById('eng').textContent = w.english;
+  document.getElementById('afterReveal').style.display = 'flex';
+}
+function gotIt(){
+  stars++; sessionProgress++; updateProgress();
+  if(deckIdx < deck.length - 1){ deckIdx++; renderLearnCard(); }
+  else {
+    gameEl.innerHTML = finaleHtml(`Well done! You've met every ${currentCategory.toLowerCase()} word.`, `setVocabMode('quiz')`, 'Try Practice mode →');
+  }
+}
+function renderQuizCard(){
+  if(deck.length === 0){ gameEl.innerHTML = `<div class="card"><p class="flash-english" style="text-align:center;">No words in this set yet.</p></div>`; return; }
+  quizAnswered = false;
+  const w = deck[deckIdx];
+  const wrongPool = WORDS.filter(x => x.shona !== w.shona && x.category === w.category);
+  const wrongs = shuffle(wrongPool).slice(0,3).map(x => x.shona);
+  quizOptions = shuffle([w.shona, ...wrongs]);
+  gameEl.innerHTML = `
+    <div class="card">
+      ${modeRowMarkup()}
+      <p class="flash-progress">Word ${deckIdx+1} / ${deck.length}</p>
+      <div class="flash-emoji">${w.emoji}</div>
+      <p class="flash-english" style="font-size:1.4rem;">${w.english}</p>
+      <p class="flash-progress">Which one means this in Shona?</p>
+      <div class="option-grid" id="optGrid">
+        ${quizOptions.map(o => `<div class="option-btn" data-val="${o}" onclick="pickQuiz(this)">${o}</div>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+}
+function pickQuiz(el){
+  if(quizAnswered) return;
+  const w = deck[deckIdx];
+  const val = el.dataset.val;
+  const feedback = document.getElementById('feedback');
+  if(val === w.shona){
+    quizAnswered = true; stars++; sessionProgress++; updateProgress();
+    el.classList.add('correct');
+    feedback.innerHTML = `<div class="fact">🌟 ${w.shona} (${w.phonetic}) means "${w.english}"</div>
+      <div class="controls" style="margin-top:12px;"><button class="action btn-next" onclick="nextQuiz()">Next ➡️</button></div>`;
+  } else {
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 400);
+    feedback.innerHTML = `<div class="fact" style="border-color:#F3A6A0;">Not quite — try another one!</div>`;
+  }
+}
+function nextQuiz(){
+  if(deckIdx < deck.length - 1){ deckIdx++; renderQuizCard(); }
+  else { gameEl.innerHTML = finaleHtml(`Great practice! You know your ${currentCategory.toLowerCase()} words.`, `selectCategory('Chat')`, 'Try Chat Corner →'); }
+}
+function modeRowMarkup(){
+  return `<div class="mode-row">
+      <button class="mode-btn ${mode==='learn'?'active':''}" onclick="setVocabMode('learn')">📚 Learn</button>
+      <button class="mode-btn ${mode==='quiz'?'active':''}" onclick="setVocabMode('quiz')">🎯 Practice</button>
+    </div>`;
+}
+
+/* ================= CHAT CORNER ================= */
+function startChat(){
+  chatDeck = shuffle(DIALOGUES.filter(d => d.level === 'both' || d.level === track));
+  chatIdx = 0;
+  sessionProgress = 0;
+  renderChat();
+  updateProgress();
+}
+function renderChat(){
+  if(chatDeck.length === 0){ gameEl.innerHTML = `<div class="card"><p style="text-align:center;">No chats yet for this track.</p></div>`; return; }
+  chatAnswered = false;
+  const d = chatDeck[chatIdx];
+  const options = shuffle([
+    { shona:d.correct, eng:d.correctEng, ok:true },
+    { shona:d.distractors[0], eng:d.distractorEng[0], ok:false },
+    { shona:d.distractors[1], eng:d.distractorEng[1], ok:false },
+  ]);
+  gameEl.innerHTML = `
+    <div class="card">
+      <p class="flash-progress">Chat ${chatIdx+1} / ${chatDeck.length} — pick the reply that makes sense</p>
+      <div class="avatar">🧑🏾</div>
+      <div class="bubble">
+        <div class="shona">${d.prompt}</div>
+        <div class="eng">${d.promptEng}</div>
+      </div>
+      <div class="reply-list" id="replyList">
+        ${options.map(o => `<div class="reply-btn" data-ok="${o.ok}" onclick="pickReply(this)"><span class="rs">${o.shona}</span><span class="re">${o.eng}</span></div>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+}
+function pickReply(el){
+  if(chatAnswered) return;
+  const ok = el.dataset.ok === 'true';
+  const feedback = document.getElementById('feedback');
+  if(ok){
+    chatAnswered = true; stars++; sessionProgress++; updateProgress();
+    el.classList.add('correct');
+    feedback.innerHTML = `<div class="fact">🌟 Great reply — a real conversation!</div>
+      <div class="controls" style="margin-top:12px;"><button class="action btn-next" onclick="nextChat()">Next ➡️</button></div>`;
+  } else {
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 400);
+    feedback.innerHTML = `<div class="fact" style="border-color:#F3A6A0;">Listen to what was said again, then pick the reply that fits.</div>`;
+  }
+}
+function nextChat(){
+  if(chatIdx < chatDeck.length - 1){ chatIdx++; renderChat(); }
+  else { gameEl.innerHTML = finaleHtml("You had a whole conversation in Shona!", `switchTrack('${track}')`, 'Play again'); }
+}
+
+/* ================= shared ================= */
+function finaleHtml(message, restartFn, restartLabel){
+  return `
+    <div class="card finale">
+      <span class="big">🎉</span>
+      <h2>${message}</h2>
+      <div class="controls" style="margin-top:16px;">
+        <button class="action btn-gotit" onclick="${restartFn}">${restartLabel}</button>
+      </div>
+    </div>`;
+}
+
+// ---------- init ----------
+document.getElementById('trackRemi').classList.add('active');
+renderCategoryNav();
+startDeck();
+</script>
+</body>
+</html>
