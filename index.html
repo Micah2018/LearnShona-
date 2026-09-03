@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's Speak Shona!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night: #241A1D;
+    --panel: #33242A;
+    --gold: #E8A33D;
+    --clay: #A6432E;
+    --leaf: #3D7A5C;
+    --teal: #1E9E8B;
+    --cream: #FBF3E7;
+    --sand: #D9C4A3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh;
+    background:
+      repeating-linear-gradient(135deg, rgba(232,163,61,0.05) 0 12px, transparent 12px 24px),
+      radial-gradient(circle at 15% 0%, #3E2A28 0%, var(--night) 55%);
+    font-family:'Nunito', sans-serif; color: var(--cream);
+    overflow-x:hidden;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:20px 16px 60px; }
+  header{ text-align:center; margin-bottom:12px; }
+  h1{ font-family:'Fredoka', sans-serif; font-size:1.8rem; margin:6px 0 2px; color: var(--gold); }
+  .subtitle{ font-size:.9rem; color: var(--sand); margin:0; }
+
+  .track-row{ display:flex; gap:8px; justify-content:center; margin: 16px 0 10px; }
+  .track-btn{
+    font-family:'Fredoka', sans-serif; font-size:1rem; padding:10px 20px; border-radius:999px;
+    border:2px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: var(--cream); cursor:pointer;
+  }
+  .track-btn.active{ background: var(--clay); border-color: var(--clay); color: #fff; }
+
+  nav.cats{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin: 4px 0 14px; }
+  .cat-btn{
+    font-family:'Nunito', sans-serif; font-weight:800; font-size:.82rem; padding:8px 14px; border-radius:999px;
+    border:2px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: var(--sand); cursor:pointer;
+  }
+  .cat-btn.active{ background: var(--teal); border-color: var(--teal); color:#0A2622; }
+
+  .path-wrap{ position:relative; margin: 14px 0 6px; padding: 0 4px; }
+  .progress-shell{
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 10px, transparent 10px 22px),
+      rgba(255,255,255,.05);
+    border-radius:999px; height:16px; border:2px solid rgba(255,255,255,.12); overflow:hidden;
+  }
+  .progress-fill{ height:100%; background: linear-gradient(90deg, var(--clay), var(--gold)); border-radius:999px; transition: width .6s ease; }
+  .path-marker{ position:absolute; top:-14px; font-size:1.5rem; transform: translateX(-50%); transition: left .6s ease; z-index:2; }
+  .path-milestones{ display:flex; justify-content:space-between; margin: 4px 6px 0; }
+  .path-milestone{ font-size:1.1rem; opacity:.35; transition: opacity .3s ease, transform .3s ease; }
+  .path-milestone.reached{ opacity:1; transform: scale(1.15); }
+  .star-count{ text-align:center; font-family:'Fredoka', sans-serif; color: var(--gold); font-size:1rem; margin-bottom:4px; }
+
+  .card{ background: var(--panel); border-radius:22px; padding:24px 20px; box-shadow:0 10px 28px rgba(0,0,0,.35); border:2px solid rgba(255,255,255,.06); margin-top:14px; }
+
+  .mode-row{ display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
+  .mode-btn{ font-family:'Fredoka', sans-serif; font-size:.9rem; padding:8px 16px; border-radius:999px; border:2px solid rgba(255,255,255,.15); background:transparent; color: var(--sand); cursor:pointer; }
+  .mode-btn.active{ background: var(--gold); color:#3E2500; border-color: var(--gold); }
+
+  .flash-word{ text-align:center; font-family:'Fredoka', sans-serif; font-size:2.2rem; color: var(--gold); margin: 4px 0 2px; }
+  .flash-emoji{ text-align:center; font-size:3rem; margin-bottom:6px; }
+  .flash-english{ text-align:center; font-size:1.2rem; color: var(--cream); min-height:1.5em; }
+  .flash-phonetic{ text-align:center; font-size:.95rem; color: var(--teal); font-style:italic; min-height:1.3em; }
+  .flash-progress{ text-align:center; color: var(--sand); font-size:.82rem; margin-bottom:10px; }
+
+  .controls{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  button.action{
+    font-family:'Fredoka', sans-serif; font-size:1rem; border:none; padding:12px 22px; border-radius:999px;
+    cursor:pointer; font-weight:600;
+  }
+  .btn-reveal{ background: var(--teal); color:#062E29; }
+  .btn-gotit{ background: var(--gold); color:#3E2500; }
+  .btn-next{ background: var(--clay); color:#fff; }
+  button.action:disabled{ opacity:.4; }
+
+  .option-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .option-btn{
+    font-family:'Fredoka', sans-serif; font-size:1.05rem; padding:14px 10px; border-radius:14px; text-align:center;
+    background: var(--cream); color: var(--night); border:3px solid transparent; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .option-btn.correct{ background:#7BD389; border-color:#3F9450; }
+  .option-btn.wrong{ background:#F3A6A0; border-color:#C15A52; opacity:.5; pointer-events:none; }
+  .quiz-hint{ text-align:center; font-size:.85rem; color: var(--teal); margin: 8px 0 0; }
+
+  .reply-btn.correct{ background:#7BD389; border-color:#3F9450; }
+  .reply-btn.wrong{ background:#F3A6A0; border-color:#C15A52; opacity:.5; pointer-events:none; }
+
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin: 14px 0; }
+  .stat-box{ background: rgba(255,255,255,.06); border-radius:14px; padding:12px; text-align:center; }
+  .stat-box .num{ font-family:'Fredoka', sans-serif; font-size:1.4rem; color: var(--gold); }
+  .stat-box .lbl{ font-size:.78rem; color: var(--sand); }
+  .section-title{ font-family:'Fredoka', sans-serif; color: var(--gold); font-size:1.05rem; margin: 16px 0 8px; }
+  table.cat-table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+  table.cat-table th, table.cat-table td{ text-align:left; padding:6px 4px; border-bottom:1px solid rgba(255,255,255,.08); }
+  table.cat-table th{ color: var(--sand); font-weight:700; font-size:.75rem; text-transform:uppercase; }
+  .review-chip{ background: rgba(243,166,160,.15); border:1px solid #F3A6A0; color: var(--cream); padding:4px 10px; border-radius:999px; font-size:.82rem; display:inline-block; margin:3px; }
+  .empty-note{ color: var(--sand); font-size:.85rem; text-align:center; padding: 8px 0; }
+
+  .reward-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#FF6B6B; margin-left:5px; vertical-align:middle; }
+
+  .streak-header{ text-align:center; margin: 4px 0 20px; }
+  .streak-header .flame{ font-size:2.4rem; }
+  .streak-header .count{ font-family:'Fredoka', sans-serif; font-size:1.6rem; color: var(--gold); margin:2px 0; }
+  .streak-header .sub{ color: var(--sand); font-size:.85rem; }
+
+  .timer-row{ display:flex; justify-content:center; gap:10px; margin: 6px 0 4px; flex-wrap:wrap; }
+  .status-badge{ font-family:'Baloo 2', 'Fredoka', sans-serif; font-size:.9rem; color: var(--cream); background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1); border-radius:999px; padding:5px 14px; }
+  .status-badge.time-low{ color:#FF6B6B; border-color:#FF6B6B; }
+
+  .reward-path{ position:relative; padding-left:44px; }
+  .reward-path::before{
+    content:''; position:absolute; left:19px; top:20px; bottom:20px; width:4px;
+    background: rgba(255,255,255,.12); border-radius:2px;
+  }
+  .reward-row{ position:relative; display:flex; align-items:center; gap:14px; padding: 12px 0; }
+  .reward-node{
+    position:absolute; left:-44px; width:40px; height:40px; border-radius:50%;
+    background: rgba(255,255,255,.08); border:3px solid rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; color: var(--sand);
+    z-index:1;
+  }
+  .reward-row.claimed .reward-node{ background: var(--teal); border-color: var(--teal); color:#0A2622; }
+  .reward-row.today .reward-node{ background: var(--gold); border-color: var(--gold); color:#3E2500; animation: pulse-node 1.4s infinite; }
+  @keyframes pulse-node{ 0%,100%{ box-shadow:0 0 0 0 rgba(232,163,61,.5);} 50%{ box-shadow:0 0 0 8px rgba(232,163,61,0);} }
+  .reward-icon{ font-size:1.8rem; width:44px; text-align:center; }
+  .reward-info{ flex:1; }
+  .reward-label{ font-family:'Fredoka', sans-serif; font-size:1rem; color: var(--cream); }
+  .reward-sub{ font-size:.78rem; color: var(--sand); }
+  .reward-row.locked .reward-label, .reward-row.locked .reward-icon{ opacity:.4; }
+  .reward-lock{ font-size:.85rem; color: var(--sand); }
+
+  .chest-reveal{ text-align:center; padding: 26px 10px; }
+  .chest-reveal .big{ font-size:3.4rem; display:block; margin-bottom:8px; }
+  .chest-reveal h2{ font-family:'Fredoka', sans-serif; color: var(--gold); font-size:1.4rem; }
+  .badge-row{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:8px; }
+  .badge-chip{ background: rgba(232,163,61,.15); border:1px solid var(--gold); color: var(--cream); padding:4px 10px; border-radius:999px; font-size:.8rem; }
+
+  .confetti-burst{ position:relative; height:0; overflow:visible; }
+  .confetti-piece{ position:absolute; top:0; left:50%; font-size:1.4rem; opacity:0; animation: confetti-fall 1.1s ease-out forwards; }
+  @keyframes confetti-fall{
+    0%{ opacity:1; transform: translate(0,0) rotate(0deg) scale(1); }
+    100%{ opacity:0; transform: translate(var(--dx), 70px) rotate(var(--rot)) scale(.8); }
+  }
+
+  .feedback{ text-align:center; min-height:44px; margin-top:14px; font-size:.95rem; }
+  .feedback .fact{ background: rgba(232,163,61,.14); border:1px dashed var(--gold); border-radius:14px; padding:9px 14px; display:inline-block; }
+
+  /* Chat Corner */
+  .bubble{ background: rgba(255,255,255,.08); border-radius:16px 16px 16px 4px; padding:14px 16px; margin: 10px auto 4px; max-width:90%; }
+  .bubble .shona{ font-family:'Fredoka', sans-serif; font-size:1.3rem; color: var(--gold); }
+  .bubble .eng{ font-size:.85rem; color: var(--sand); margin-top:2px; }
+  .avatar{ text-align:center; font-size:2.2rem; margin-bottom:2px; }
+  .reply-list{ display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .reply-btn{
+    font-family:'Nunito', sans-serif; text-align:left; padding:12px 14px; border-radius:14px;
+    background: var(--cream); color: var(--night); border:3px solid transparent; cursor:pointer;
+  }
+  .reply-btn .rs{ font-family:'Fredoka', sans-serif; font-size:1.05rem; display:block; }
+  .reply-btn .re{ font-size:.8rem; color:#5a4a44; }
+
+  .finale{ text-align:center; padding:26px 10px; }
+  .finale .big{ font-size:3.4rem; display:block; margin-bottom:6px; }
+  .finale h2{ font-family:'Fredoka', sans-serif; color: var(--gold); font-size:1.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div style="font-size:2.2rem;">🥁</div>
+    <h1>Let's Speak Shona!</h1>
+    <p class="subtitle" id="subtitleText">Learn real words, then use them in a chat</p>
+  </header>
+
+  <div class="track-row">
+    <button class="track-btn" id="trackRemi" onclick="switchTrack('remi')">🌟 Remi</button>
+    <button class="track-btn" id="trackMicah" onclick="switchTrack('micah')">🚀 Micah</button>
+    <button class="track-btn" id="trackRewards" onclick="showRewards()">🎁 Rewards<span class="reward-dot" id="rewardDot" style="display:none;"></span></button>
+    <button class="track-btn" id="trackProgress" onclick="showProgress()">📊 Progress</button>
+  </div>
+
+  <nav class="cats" id="catsNav"></nav>
+
+  <div class="timer-row">
+    <span class="status-badge" id="shonaTimerBadge">⏳ 10:00 today</span>
+    <button class="status-badge" id="shonaPauseBtn" onclick="toggleShonaPause()" style="cursor:pointer; border:none; font-family:'Fredoka', sans-serif;">⏸️ Pause</button>
+  </div>
+
+  <div class="star-count" id="starCount">⭐ 0 stars</div>
+  <div class="path-wrap">
+    <div class="progress-shell"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="path-marker" id="pathMarker" style="left:0%">🦜</div>
+  </div>
+  <div class="path-milestones">
+    <span class="path-milestone" id="milestoneStart">🏡</span>
+    <span class="path-milestone" id="milestoneMid">🌍</span>
+    <span class="path-milestone" id="milestoneEnd">🏆</span>
+  </div>
+
+  <div id="game"></div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+/* Sourced from Omniglot's Shona phrasebook, Polyglot Club, Sarura Kids,
+   Wisc LCTL Shona resources, and Wiktionary's Shona days-of-the-week category.
+   Phonetic guides are simplified English approximations, not IPA — great for
+   a first go, but a native speaker (like Rumbidzai!) is the best final check. */
+
+const WORDS = [
+  // Greetings — both tracks
+  { shona:'Mhoro', english:'Hello', phonetic:'MHOH-roh', category:'Greetings', emoji:'👋', level:'both' },
+  { shona:'Mangwanani', english:'Good morning', phonetic:'mahn-gwah-NAH-nee', category:'Greetings', emoji:'🌅', level:'both' },
+  { shona:'Masikati', english:'Good afternoon', phonetic:'mah-see-KAH-tee', category:'Greetings', emoji:'☀️', level:'both' },
+  { shona:'Manheru', english:'Good evening', phonetic:'mahn-HEH-roo', category:'Greetings', emoji:'🌆', level:'both' },
+  { shona:'Ndatenda', english:'Thank you', phonetic:'ndah-TEHN-dah', category:'Greetings', emoji:'🙏', level:'both' },
+  { shona:'Ehe', english:'Yes', phonetic:'EH-heh', category:'Greetings', emoji:'✅', level:'both' },
+  { shona:'Kwete', english:'No', phonetic:'KWEH-teh', category:'Greetings', emoji:'🚫', level:'both' },
+  { shona:'Ndapota', english:'Please', phonetic:'ndah-POH-tah', category:'Greetings', emoji:'🤲', level:'micah' },
+  { shona:'Zvakanaka', english:"It's good / You're welcome", phonetic:'zvah-kah-NAH-kah', category:'Greetings', emoji:'😊', level:'micah' },
+  { shona:'Urare zvakanaka', english:'Good night', phonetic:'oo-RAH-reh zvah-kah-NAH-kah', category:'Greetings', emoji:'🌙', level:'both' },
+  { shona:'Sara zvakanaka', english:'Goodbye (stay well)', phonetic:'SAH-rah zvah-kah-NAH-kah', category:'Greetings', emoji:'👋', level:'both' },
+  { shona:'Une makore mangani?', english:'How old are you?', phonetic:'OO-neh mah-KOH-reh mah-NGAH-nee', category:'Greetings', emoji:'🎂', level:'both' },
+  { shona:'Ndine makore mashanu', english:"I'm five years old", phonetic:'NDEE-neh mah-KOH-reh mah-SHAH-noo', category:'Greetings', emoji:'🎂', level:'both', personalTo:'remi' },
+  { shona:'Ndine makore matanhatu', english:"I'm six years old", phonetic:'NDEE-neh mah-KOH-reh mah-tahn-HAH-too', category:'Greetings', emoji:'🎂', level:'both', personalTo:'remi' },
+  { shona:'Ndine makore masere', english:"I'm eight years old", phonetic:'NDEE-neh mah-KOH-reh mah-SEH-reh', category:'Greetings', emoji:'🎂', level:'both', personalTo:'micah' },
+
+  // Numbers — Remi gets 1-5, Micah gets 1-10
+  { shona:'Motsi', english:'One', phonetic:'MOH-tsee', category:'Numbers', emoji:'1️⃣', level:'both' },
+  { shona:'Piri', english:'Two', phonetic:'PEE-ree', category:'Numbers', emoji:'2️⃣', level:'both' },
+  { shona:'Tatu', english:'Three', phonetic:'TAH-too', category:'Numbers', emoji:'3️⃣', level:'both' },
+  { shona:'China', english:'Four', phonetic:'CHEE-nah', category:'Numbers', emoji:'4️⃣', level:'both' },
+  { shona:'Shanu', english:'Five', phonetic:'SHAH-noo', category:'Numbers', emoji:'5️⃣', level:'both' },
+  { shona:'Tanhatu', english:'Six', phonetic:'tahn-HAH-too', category:'Numbers', emoji:'6️⃣', level:'micah' },
+  { shona:'Nomwe', english:'Seven', phonetic:'NOH-mweh', category:'Numbers', emoji:'7️⃣', level:'micah' },
+  { shona:'Sere', english:'Eight', phonetic:'SEH-reh', category:'Numbers', emoji:'8️⃣', level:'micah' },
+  { shona:'Pfumbamwe', english:'Nine', phonetic:'pfoom-BAH-mweh', category:'Numbers', emoji:'9️⃣', level:'micah' },
+  { shona:'Gumi', english:'Ten', phonetic:'GOO-mee', category:'Numbers', emoji:'🔟', level:'both' },
+
+  // Colours
+  { shona:'Tsvuku', english:'Red', phonetic:'TSVOO-koo', category:'Colours', emoji:'🔴', level:'both' },
+  { shona:'Chena', english:'White', phonetic:'CHEH-nah', category:'Colours', emoji:'⚪', level:'both' },
+  { shona:'Nhema', english:'Black', phonetic:'NHEH-mah', category:'Colours', emoji:'⚫', level:'both' },
+  { shona:'Girini', english:'Green', phonetic:'gee-REE-nee', category:'Colours', emoji:'🟢', level:'both' },
+  { shona:'Bhuruu', english:'Blue', phonetic:'boo-ROO', category:'Colours', emoji:'🔵', level:'both' },
+  { shona:'Yero', english:'Yellow', phonetic:'YEH-roh', category:'Colours', emoji:'🟡', level:'micah' },
+  { shona:'Bhurauni', english:'Brown', phonetic:'boo-rah-OO-nee', category:'Colours', emoji:'🟤', level:'micah' },
+
+  // Family
+  { shona:'Baba', english:'Father', phonetic:'BAH-bah', category:'Family', emoji:'👨', level:'both' },
+  { shona:'Amai', english:'Mother', phonetic:'ah-MAH-ee', category:'Family', emoji:'👩', level:'both' },
+  { shona:'Mwana', english:'Child', phonetic:'MWAH-nah', category:'Family', emoji:'🧒', level:'both' },
+  { shona:'Mukomana', english:'Boy', phonetic:'moo-koh-MAH-nah', category:'Family', emoji:'👦', level:'both' },
+  { shona:'Musikana', english:'Girl', phonetic:'moo-see-KAH-nah', category:'Family', emoji:'👧', level:'both' },
+  { shona:'Sekuru', english:'Grandfather', phonetic:'seh-KOO-roo', category:'Family', emoji:'👴', level:'micah' },
+  { shona:'Ambuya', english:'Grandmother', phonetic:'ahm-BOO-yah', category:'Family', emoji:'👵', level:'micah' },
+  { shona:"Munin'ina", english:'Younger sibling', phonetic:"moo-nin-EE-nah", category:'Family', emoji:'🧒', level:'micah' },
+  { shona:'Vazukuru', english:'Grandchildren', phonetic:'vah-zoo-KOO-roo', category:'Family', emoji:'👨‍👩‍👧‍👦', level:'micah' },
+  { shona:'Muri vangani mumhuri menyu?', english:'How many are in your family?', phonetic:'MOO-ree vah-NGAH-nee moo-MHOO-ree MEH-nyoo', category:'Family', emoji:'❓', level:'micah' },
+  { shona:'Baba vako varipi?', english:'Where is your father?', phonetic:'BAH-bah VAH-koh vah-REE-pee', category:'Family', emoji:'❓', level:'micah' },
+  { shona:'Amai vako varipi?', english:'Where is your mother?', phonetic:'ah-MAH-ee VAH-koh vah-REE-pee', category:'Family', emoji:'❓', level:'micah' },
+
+  // Animals
+  { shona:'Imbwa', english:'Dog', phonetic:'EEM-bwah', category:'Animals', emoji:'🐶', level:'both' },
+  { shona:'Katsi', english:'Cat', phonetic:'KAH-tsee', category:'Animals', emoji:'🐱', level:'both' },
+  { shona:'Mombe', english:'Cow', phonetic:'MOHM-beh', category:'Animals', emoji:'🐮', level:'both' },
+  { shona:'Nzou', english:'Elephant', phonetic:'NZOH-oo', category:'Animals', emoji:'🐘', level:'both' },
+  { shona:'Shumba', english:'Lion', phonetic:'SHOOM-bah', category:'Animals', emoji:'🦁', level:'both' },
+  { shona:'Huku', english:'Chicken', phonetic:'HOO-koo', category:'Animals', emoji:'🐔', level:'both' },
+  { shona:'Tsuro', english:'Rabbit', phonetic:'TSOO-roh', category:'Animals', emoji:'🐰', level:'micah' },
+  { shona:'Mbizi', english:'Zebra', phonetic:'MBEE-zee', category:'Animals', emoji:'🦓', level:'micah' },
+  { shona:'Tsoko', english:'Monkey', phonetic:'TSOH-koh', category:'Animals', emoji:'🐒', level:'both' },
+  { shona:'Shiri', english:'Bird', phonetic:'SHEE-ree', category:'Animals', emoji:'🐦', level:'both' },
+  { shona:'Nyoka', english:'Snake', phonetic:'NYOH-kah', category:'Animals', emoji:'🐍', level:'micah' },
+  { shona:'Garwe', english:'Crocodile', phonetic:'GAH-rweh', category:'Animals', emoji:'🐊', level:'micah' },
+  { shona:'Mbada', english:'Leopard', phonetic:'MBAH-dah', category:'Animals', emoji:'🐆', level:'micah' },
+  { shona:'Gudo', english:'Baboon', phonetic:'GOO-doh', category:'Animals', emoji:'🐵', level:'micah' },
+  { shona:'Bere', english:'Hyena', phonetic:'BEH-reh', category:'Animals', emoji:'🐾', level:'micah' },
+  { shona:'Furiramudenga', english:'Giraffe', phonetic:'foo-ree-rah-moo-DEHN-gah', category:'Animals', emoji:'🦒', level:'micah' },
+  { shona:'Toki', english:'Turkey', phonetic:'TOH-kee', category:'Animals', emoji:'🦃', level:'micah' },
+  { shona:'Dhadha', english:'Duck', phonetic:'DHAH-dhah', category:'Animals', emoji:'🦆', level:'both' },
+  { shona:'Mbongoro', english:'Donkey', phonetic:'mboh-NGOH-roh', category:'Animals', emoji:'🐴', level:'micah' },
+
+  // Feelings — Micah only (more abstract)
+  { shona:'Ndinofara', english:"I'm happy", phonetic:'ndee-noh-FAH-rah', category:'Feelings', emoji:'😄', level:'micah' },
+  { shona:'Ndaneta', english:"I'm tired", phonetic:'ndah-NEH-tah', category:'Feelings', emoji:'😴', level:'micah' },
+  { shona:'Ndine nzara', english:"I'm hungry", phonetic:'NDEE-neh NZAH-rah', category:'Feelings', emoji:'🍽️', level:'micah' },
+  { shona:'Ndine nyota', english:"I'm thirsty", phonetic:'NDEE-neh NYOH-tah', category:'Feelings', emoji:'🥤', level:'micah' },
+  { shona:'Ndinosuwa', english:"I'm sad", phonetic:'ndee-noh-SOO-wah', category:'Feelings', emoji:'😢', level:'both' },
+
+  // Senses & Actions — straight from the family's own worksheet (arikuitei.pdf)
+  { shona:'Famba', english:'Walk', phonetic:'FAHM-bah', category:'Senses', emoji:'🚶', level:'both' },
+  { shona:'Kuona', english:'Watch / see', phonetic:'koo-OH-nah', category:'Senses', emoji:'👀', level:'both' },
+  { shona:'Bata', english:'Touch', phonetic:'BAH-tah', category:'Senses', emoji:'✋', level:'both' },
+  { shona:'Ravira', english:'Taste', phonetic:'rah-VEE-rah', category:'Senses', emoji:'👅', level:'micah' },
+  { shona:'Nhuwidza', english:'Smell', phonetic:'nhoo-WEE-dzah', category:'Senses', emoji:'👃', level:'micah' },
+  { shona:'Kunzwa', english:'Listen / hear', phonetic:'koo-NZWAH', category:'Senses', emoji:'👂', level:'micah' },
+];
+
+const CATEGORIES = ['Greetings','Numbers','Colours','Family','Animals','Feelings','Senses'];
+
+// Mini conversations for Chat Corner — real exchanges, sourced from Omniglot's
+// Shona phrasebook. Personalised with Micah & Remi's names where it fits.
+const DIALOGUES = [
+  {
+    prompt:'Mhoro!', promptEng:'Hello!',
+    correct:'Mhoro!', correctEng:'Hello!',
+    distractors:['Gumi!','Ndaneta.'], distractorEng:['Ten!',"I'm tired."],
+    level:'both'
+  },
+  {
+    prompt:'Mangwanani!', promptEng:'Good morning!',
+    correct:'Mangwanani, marara sei?', correctEng:'Good morning, did you sleep well?',
+    distractors:['Tsvuku.','Imbwa!'], distractorEng:['Red.','Dog!'],
+    level:'both'
+  },
+  {
+    prompt:'Masikati!', promptEng:'Good afternoon!',
+    correct:'Masikati, maswera sei?', correctEng:'Good afternoon, how has your day been?',
+    distractors:['Katsi!','Gumi.'], distractorEng:['Cat!','Ten.'],
+    level:'both'
+  },
+  {
+    prompt:'Manheru!', promptEng:'Good evening!',
+    correct:'Manheru, maswera sei?', correctEng:'Good evening, how was your day?',
+    distractors:['Girini.','Shumba!'], distractorEng:['Green.','Lion!'],
+    level:'both'
+  },
+  {
+    prompt:'Urare zvakanaka!', promptEng:'Good night!',
+    correct:'Urare zvakanaka!', correctEng:'Good night to you too!',
+    distractors:['Motsi.','Mombe!'], distractorEng:['One.','Cow!'],
+    level:'both'
+  },
+  {
+    prompt:'Unonzani?', promptEng:"What's your name?",
+    correct:'Ndinonzi Remi.', correctEng:'My name is Remi.',
+    distractors:['Sere.','Bhuruu.'], distractorEng:['Eight.','Blue.'],
+    level:'remi'
+  },
+  {
+    prompt:'Unonzani?', promptEng:"What's your name?",
+    correct:'Ndinonzi Micah.', correctEng:'My name is Micah.',
+    distractors:['Pfumbamwe.','Nzou.'], distractorEng:['Nine.','Elephant.'],
+    level:'micah'
+  },
+  {
+    prompt:'Une makore mangani?', promptEng:'How old are you?',
+    correct:'Ndine makore mashanu. Ko iwe, une makore mangani?', correctEng:"I'm five. And you, how old are you?",
+    distractors:['Ndinofara.','Nzou.'], distractorEng:["I'm happy.",'Elephant.'],
+    level:'remi'
+  },
+  {
+    prompt:'Une makore mangani?', promptEng:'How old are you?',
+    correct:'Ndine makore masere. Ko iwe, une makore mangani?', correctEng:"I'm eight. And you, how old are you?",
+    distractors:['Ndaneta.','Girini.'], distractorEng:["I'm tired.",'Green.'],
+    level:'micah'
+  },
+  {
+    prompt:'Wakadini zvako?', promptEng:'How are you?',
+    correct:'Ndiripo, waita zvako!', correctEng:"I'm fine, thank you!",
+    distractors:['Katsi.','Girini.'], distractorEng:['Cat.','Green.'],
+    level:'both'
+  },
+  {
+    prompt:'Waita zvako!', promptEng:'Thank you!',
+    correct:'Zvakanaka.', correctEng:"You're welcome.",
+    distractors:['Motsi.','Shumba.'], distractorEng:['One.','Lion.'],
+    level:'micah'
+  },
+  {
+    prompt:'Sara zvakanaka!', promptEng:'Goodbye! (stay well)',
+    correct:'Sara zvakanaka!', correctEng:'Goodbye! (stay well)',
+    distractors:['China.','Chena.'], distractorEng:['Four.','White.'],
+    level:'both'
+  },
+];
+
+let track = 'remi';
+let currentCategory = 'Greetings';
+let mode = 'learn'; // 'learn' | 'quiz' | 'chat'
+let stars = 0;
+let sessionProgress = 0; // resets each time a category/chat deck is (re)started — drives the progress bar
+
+// per-session state
+let deck = [];
+let deckIdx = 0;
+let revealed = false;
+let quizOptions = [];
+let quizAnswered = false;
+let quizAttempts = 0;
+let chatDeck = [];
+let chatIdx = 0;
+let chatAnswered = false;
+
+// ---------- persistent memory (tracks what learning has actually happened) ----------
+let storageAvailable = true;
+let progress = {
+  wordStats: {},       // { shonaWord: { correct: n, wrong: n, category } }
+  chatCompleted: {},   // { promptText: true } — Chat Corner exchanges completed at least once
+  lifetimeStars: 0,
+  sessions: [],         // ISO date strings, one per visit
+  lastPlayed: null,
+  dailyPlayed: {},      // { 'YYYY-MM-DD': true } — a day counts once he's gotten at least one answer right
+  dailyMinutes: {},     // { 'YYYY-MM-DD': secondsPlayedThatDay } — for the 10-minute daily timer
+  claimedDates: {},     // { 'YYYY-MM-DD': true } — daily reward already claimed that day
+  badges: [],           // earned badge names, from bigger chest rewards
+  doubleStarsRemaining: 0 // counts down each time a star is earned while a boost is active
+};
+
+const STREAK_MIN_FOR_DAY = 1; // at least one correct answer counts the day
+// The Duolingo-style daily rewards ladder — cycles every 7 days.
+const DAILY_REWARDS = [
+  { icon:'⭐', label:'5 Bonus Stars', sub:'A little something for showing up', apply:() => grantBonusStars(5) },
+  { icon:'🎁', label:'Small Treasure Chest', sub:'+8 stars & a surprise', apply:() => grantBonusStars(8) },
+  { icon:'⭐', label:'10 Bonus Stars', sub:'Keep the streak alive!', apply:() => grantBonusStars(10) },
+  { icon:'💎', label:'Rare Treasure Chest', sub:'+12 stars & a badge', apply:() => { grantBonusStars(12); grantBadge('Rare Explorer 💎'); } },
+  { icon:'🔥', label:'Double Stars Boost', sub:'Next 5 correct answers earn double', apply:() => { progress.doubleStarsRemaining = 5; } },
+  { icon:'⭐', label:'20 Bonus Stars', sub:'Almost at the Mega Chest!', apply:() => grantBonusStars(20) },
+  { icon:'🏆', label:'Mega Treasure Chest', sub:'+30 stars & a badge', apply:() => { grantBonusStars(30); grantBadge('Mega Champion 🏆'); } },
+];
+function grantBonusStars(n){ progress.lifetimeStars += n; }
+function grantBadge(name){ progress.badges = progress.badges || []; if(!progress.badges.includes(name)) progress.badges.push(name); }
+
+function shonaDateKey(d){
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function markPlayedToday(){
+  progress.dailyPlayed = progress.dailyPlayed || {};
+  progress.dailyPlayed[shonaDateKey()] = true;
+}
+// A day counts toward the streak if EITHER the old correctness-based marker
+// is set, or the new time-based one is — so switching to time tracking
+// doesn't wipe out streak history recorded before this existed.
+function dayCounts(key){
+  return !!(progress.dailyPlayed && progress.dailyPlayed[key]) || meetsShonaThreshold(key);
+}
+function computeShonaStreak(){
+  progress.dailyPlayed = progress.dailyPlayed || {};
+  progress.dailyMinutes = progress.dailyMinutes || {};
+  let streak = 0;
+  let d = new Date();
+  const todayMet = dayCounts(shonaDateKey(d));
+  if(!todayMet) d.setDate(d.getDate() - 1); // show the streak carried into today until today is actually played
+  while(dayCounts(shonaDateKey(d))){
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+// ---------- 10-minute daily timer ----------
+const SHONA_DAILY_LIMIT_SECONDS = 600; // 10 minutes
+const SHONA_STREAK_MIN_SECONDS = 60;   // minimum time in a day to count toward the streak
+let shonaTimerInterval = null;
+let shonaPaused = false;
+function ensureDailyMinutes(){ progress.dailyMinutes = progress.dailyMinutes || {}; }
+function getTodaySecondsShona(){ ensureDailyMinutes(); return progress.dailyMinutes[shonaDateKey()] || 0; }
+function isShonaTimeUp(){ return getTodaySecondsShona() >= SHONA_DAILY_LIMIT_SECONDS; }
+function meetsShonaThreshold(key){ ensureDailyMinutes(); return (progress.dailyMinutes[key] || 0) >= SHONA_STREAK_MIN_SECONDS; }
+function updateTimerDisplay(){
+  const remaining = Math.max(0, SHONA_DAILY_LIMIT_SECONDS - getTodaySecondsShona());
+  const m = Math.floor(remaining / 60), s = remaining % 60;
+  const el = document.getElementById('shonaTimerBadge');
+  if(el){
+    el.textContent = `⏳ ${m}:${String(s).padStart(2,'0')} today${shonaPaused ? ' (paused)' : ''}`;
+    el.classList.toggle('time-low', remaining <= 60);
+  }
+}
+function startShonaTimer(){
+  if(shonaTimerInterval || isShonaTimeUp() || shonaPaused) return;
+  shonaTimerInterval = setInterval(shonaTick, 1000);
+}
+function stopShonaTimer(){
+  if(shonaTimerInterval){ clearInterval(shonaTimerInterval); shonaTimerInterval = null; }
+}
+function shonaTick(){
+  ensureDailyMinutes();
+  const key = shonaDateKey();
+  progress.dailyMinutes[key] = (progress.dailyMinutes[key] || 0) + 1;
+  updateTimerDisplay();
+  if(progress.dailyMinutes[key] % 5 === 0) saveProgress();
+  if(isShonaTimeUp()){
+    stopShonaTimer();
+    saveProgress();
+    renderShonaTimeUp();
+  }
+}
+function toggleShonaPause(){
+  shonaPaused = !shonaPaused;
+  const btn = document.getElementById('shonaPauseBtn');
+  if(shonaPaused){
+    stopShonaTimer();
+    if(btn) btn.textContent = '▶️ Resume';
+  } else {
+    if(btn) btn.textContent = '⏸️ Pause';
+    if(!isShonaTimeUp()) startShonaTimer();
+  }
+  updateTimerDisplay();
+}
+function renderShonaTimeUp(){
+  gameEl.innerHTML = `
+    <div class="card" style="text-align:center; padding:30px 16px;">
+      <span style="font-size:3rem; display:block; margin-bottom:8px;">🌙</span>
+      <h2 style="font-family:'Fredoka', sans-serif; color: var(--sun); font-size:1.4rem;">Time's up for today!</h2>
+      <p>Great work today — come back tomorrow to keep the streak going!</p>
+    </div>`;
+}
+function confettiBurst(el, count){
+  count = count || 12;
+  const pieces = ['🎉','🌟','✨','🎊','⭐'];
+  const burst = document.createElement('div');
+  burst.className = 'confetti-burst';
+  for(let i=0;i<count;i++){
+    const span = document.createElement('span');
+    span.className = 'confetti-piece';
+    span.textContent = pieces[Math.floor(Math.random()*pieces.length)];
+    span.style.setProperty('--dx', (Math.random()*200-100) + 'px');
+    span.style.setProperty('--rot', (Math.random()*360-180) + 'deg');
+    span.style.animationDelay = (Math.random()*0.15) + 's';
+    burst.appendChild(span);
+  }
+  el.appendChild(burst);
+  setTimeout(() => burst.remove(), 1300);
+}
+
+function ensureWordStat(word, category){
+  if(!progress.wordStats[word]) progress.wordStats[word] = { correct:0, wrong:0, category };
+  return progress.wordStats[word];
+}
+function applyStarGain(base){
+  markPlayedToday();
+  let gain = base;
+  if(progress.doubleStarsRemaining > 0){
+    gain *= 2;
+    progress.doubleStarsRemaining--;
+  }
+  progress.lifetimeStars += gain;
+}
+function recordCorrect(word, category, isFull){
+  const w = ensureWordStat(word, category);
+  w.correct++;
+  applyStarGain(isFull ? 1 : 0.5);
+  saveProgress();
+}
+function recordWrong(word, category){
+  ensureWordStat(word, category).wrong++;
+  saveProgress();
+}
+function recordChatCorrect(dialogue){
+  if(!progress.chatCompleted[dialogue.prompt + '|' + dialogue.correct]){
+    progress.chatCompleted[dialogue.prompt + '|' + dialogue.correct] = true;
+    applyStarGain(1);
+  } else {
+    markPlayedToday();
+  }
+  saveProgress();
+}
+async function saveProgress(){
+  progress.lastPlayed = new Date().toISOString();
+  if(!window.storage || typeof window.storage.set !== 'function'){ storageAvailable = false; return; }
+  try{
+    await window.storage.set('shona-progress', JSON.stringify(progress), false);
+    storageAvailable = true;
+  } catch(e){ storageAvailable = false; console.error('Could not save Shona progress', e); }
+}
+async function loadProgress(){
+  if(!window.storage || typeof window.storage.get !== 'function'){
+    storageAvailable = false;
+  } else {
+    try{
+      const res = await window.storage.get('shona-progress', false);
+      if(res && res.value){
+        const loaded = JSON.parse(res.value);
+        progress = Object.assign(progress, loaded);
+      }
+    } catch(e){
+      // No saved progress yet (first-ever visit) — that's expected, not a failure.
+    }
+  }
+  progress.sessions = progress.sessions || [];
+  progress.sessions.push(new Date().toISOString());
+  if(progress.sessions.length > 40) progress.sessions = progress.sessions.slice(-40);
+  saveProgress();
+}
+
+const gameEl = document.getElementById('game');
+const starCountEl = document.getElementById('starCount');
+const progressFill = document.getElementById('progressFill');
+const pathMarker = document.getElementById('pathMarker');
+const milestoneStart = document.getElementById('milestoneStart');
+const milestoneMid = document.getElementById('milestoneMid');
+const milestoneEnd = document.getElementById('milestoneEnd');
+const subtitleText = document.getElementById('subtitleText');
+const catsNav = document.getElementById('catsNav');
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function wordsFor(category){
+  // Micah and Remi are on the same skill level, so both tracks see the full
+  // word list — except the two personal "I'm X years old" lines, which
+  // should only show up for the child they're actually true for.
+  return WORDS.filter(w => w.category === category && (!w.personalTo || w.personalTo === track));
+}
+
+function renderCategoryNav(){
+  catsNav.innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-btn ${c===currentCategory?'active':''}" onclick="selectCategory('${c}')">${categoryEmoji(c)} ${c}</button>`
+  ).join('') + `<button class="cat-btn ${currentCategory==='Chat'?'active':''}" onclick="selectCategory('Chat')">💬 Chat Corner</button>`;
+}
+function categoryEmoji(c){
+  return { Greetings:'👋', Numbers:'🔢', Colours:'🎨', Family:'👪', Animals:'🐾', Feelings:'💛', Senses:'✋' }[c] || '';
+}
+
+function switchTrack(t){
+  track = t;
+  document.getElementById('trackRemi').classList.toggle('active', t==='remi');
+  document.getElementById('trackMicah').classList.toggle('active', t==='micah');
+  document.getElementById('trackProgress').classList.remove('active');
+  document.getElementById('trackRewards').classList.remove('active');
+  subtitleText.textContent = t==='remi' ? "Same words, same chats — just Remi's turn" : "Same words, same chats — just Micah's turn";
+  if(currentCategory === 'Progress' || currentCategory === 'Rewards'){ selectCategory('Greetings'); return; }
+  // Only Greetings (personal age line) and Chat Corner (personalised name/age
+  // dialogue) actually differ by track now, so only refresh those — and
+  // refresh in place rather than forcing back to Learn mode, so switching
+  // tracks mid-Practice doesn't wipe that progress.
+  if(currentCategory === 'Chat'){ startChat(); }
+  else if(currentCategory === 'Greetings'){ startDeck(); }
+}
+
+function selectCategory(cat){
+  currentCategory = cat;
+  document.getElementById('trackProgress').classList.remove('active');
+  document.getElementById('trackRewards').classList.remove('active');
+  document.getElementById('trackRemi').classList.toggle('active', track==='remi');
+  document.getElementById('trackMicah').classList.toggle('active', track==='micah');
+  renderCategoryNav();
+  if(cat === 'Chat'){ mode = 'chat'; startChat(); }
+  else { mode = 'learn'; startDeck(); }
+}
+
+function updateProgress(){
+  starCountEl.textContent = `⭐ ${stars} stars`;
+  const capacity = mode === 'chat' ? chatDeck.length : (deck.length * 2); // learn + quiz pass
+  const pct = capacity ? Math.min(100, (sessionProgress / Math.max(capacity, 6)) * 100) : 0;
+  progressFill.style.width = pct + '%';
+  pathMarker.style.left = pct + '%';
+  milestoneStart.classList.toggle('reached', pct >= 0);
+  milestoneMid.classList.toggle('reached', pct >= 50);
+  milestoneEnd.classList.toggle('reached', pct >= 100);
+  updateRewardDot();
+}
+
+/* ================= LEARN / QUIZ (vocabulary) ================= */
+function startDeck(){
+  stopShonaTimer();
+  if(isShonaTimeUp()){ renderShonaTimeUp(); updateProgress(); updateTimerDisplay(); return; }
+  deck = shuffle(wordsFor(currentCategory));
+  deckIdx = 0;
+  sessionProgress = 0;
+  if(mode === 'learn') renderLearnCard(); else renderQuizCard();
+  updateProgress();
+  startShonaTimer();
+}
+function setVocabMode(m){
+  mode = m; deckIdx = 0;
+  if(m === 'learn') renderLearnCard(); else renderQuizCard();
+}
+function renderLearnCard(){
+  if(deck.length === 0){ gameEl.innerHTML = `<div class="card"><p class="flash-english" style="text-align:center;">No words in this set yet.</p></div>`; return; }
+  revealed = false;
+  const w = deck[deckIdx];
+  gameEl.innerHTML = `
+    <div class="card">
+      ${modeRowMarkup()}
+      <p class="flash-progress">Card ${deckIdx+1} / ${deck.length}</p>
+      <div class="flash-emoji">${w.emoji}</div>
+      <p class="flash-word">${w.shona}</p>
+      <p class="flash-phonetic" id="phon"></p>
+      <p class="flash-english" id="eng"></p>
+      <div class="controls">
+        <button class="action btn-reveal" onclick="revealCard()">👀 Reveal meaning</button>
+      </div>
+      <div class="controls" id="afterReveal" style="display:none;">
+        <button class="action btn-gotit" onclick="gotIt()">Got it! ⭐</button>
+      </div>
+    </div>`;
+}
+function revealCard(){
+  if(revealed) return;
+  revealed = true;
+  const w = deck[deckIdx];
+  document.getElementById('phon').textContent = w.phonetic;
+  document.getElementById('eng').textContent = w.english;
+  document.getElementById('afterReveal').style.display = 'flex';
+}
+function gotIt(){
+  stars++; sessionProgress++; updateProgress();
+  applyStarGain(1);
+  saveProgress();
+  if(deckIdx < deck.length - 1){ deckIdx++; renderLearnCard(); }
+  else {
+    gameEl.innerHTML = finaleHtml(`Well done! You've met every ${currentCategory.toLowerCase()} word.`, `setVocabMode('quiz')`, 'Try Practice mode →');
+  }
+}
+function renderQuizCard(){
+  if(deck.length === 0){ gameEl.innerHTML = `<div class="card"><p class="flash-english" style="text-align:center;">No words in this set yet.</p></div>`; return; }
+  quizAnswered = false;
+  quizAttempts = 0;
+  const w = deck[deckIdx];
+  const wrongPool = WORDS.filter(x => x.shona !== w.shona && x.category === w.category && (!x.personalTo || x.personalTo === track));
+  const wrongs = shuffle(wrongPool).slice(0,3).map(x => x.shona);
+  quizOptions = shuffle([w.shona, ...wrongs]);
+  gameEl.innerHTML = `
+    <div class="card">
+      ${modeRowMarkup()}
+      <p class="flash-progress">Word ${deckIdx+1} / ${deck.length}</p>
+      <div class="flash-emoji">${w.emoji}</div>
+      <p class="flash-english" style="font-size:1.4rem;">${w.english}</p>
+      <p class="flash-progress">Which one means this in Shona?</p>
+      <div class="option-grid" id="optGrid">
+        ${quizOptions.map(o => `<div class="option-btn" data-val="${o}" onclick="pickQuiz(this)">${o}</div>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+}
+function pickQuiz(el){
+  if(quizAnswered) return;
+  const w = deck[deckIdx];
+  const val = el.dataset.val;
+  const feedback = document.getElementById('feedback');
+  if(val === w.shona){
+    quizAnswered = true; stars++; sessionProgress++; updateProgress();
+    recordCorrect(w.shona, w.category, quizAttempts === 0);
+    el.classList.add('correct');
+    feedback.innerHTML = `<div class="fact">🌟 ${w.shona} (${w.phonetic}) means "${w.english}"</div>
+      <div class="controls" style="margin-top:12px;"><button class="action btn-next" onclick="nextQuiz()">Next ➡️</button></div>`;
+  } else {
+    quizAttempts++;
+    recordWrong(w.shona, w.category);
+    el.classList.add('wrong'); // stays disabled — no repeat-clicking the same wrong option
+    if(quizAttempts >= 2){
+      feedback.innerHTML = `<div class="fact" style="border-color:#F3A6A0;">Not quite — try another one!</div><p class="quiz-hint">💡 It starts with "${w.shona[0]}" and sounds like ${w.phonetic}</p>`;
+    } else {
+      feedback.innerHTML = `<div class="fact" style="border-color:#F3A6A0;">Not quite — try another one!</div>`;
+    }
+  }
+}
+function nextQuiz(){
+  if(deckIdx < deck.length - 1){ deckIdx++; renderQuizCard(); }
+  else { gameEl.innerHTML = finaleHtml(`Great practice! You know your ${currentCategory.toLowerCase()} words.`, `selectCategory('Chat')`, 'Try Chat Corner →'); }
+}
+function modeRowMarkup(){
+  return `<div class="mode-row">
+      <button class="mode-btn ${mode==='learn'?'active':''}" onclick="setVocabMode('learn')">📚 Learn</button>
+      <button class="mode-btn ${mode==='quiz'?'active':''}" onclick="setVocabMode('quiz')">🎯 Practice</button>
+    </div>`;
+}
+
+/* ================= CHAT CORNER ================= */
+function startChat(){
+  stopShonaTimer();
+  if(isShonaTimeUp()){ renderShonaTimeUp(); updateProgress(); updateTimerDisplay(); return; }
+  chatDeck = shuffle(DIALOGUES.filter(d => d.level === 'both' || d.level === track));
+  chatIdx = 0;
+  sessionProgress = 0;
+  renderChat();
+  updateProgress();
+  startShonaTimer();
+}
+function renderChat(){
+  if(chatDeck.length === 0){ gameEl.innerHTML = `<div class="card"><p style="text-align:center;">No chats yet for this track.</p></div>`; return; }
+  chatAnswered = false;
+  const d = chatDeck[chatIdx];
+  const options = shuffle([
+    { shona:d.correct, eng:d.correctEng, ok:true },
+    { shona:d.distractors[0], eng:d.distractorEng[0], ok:false },
+    { shona:d.distractors[1], eng:d.distractorEng[1], ok:false },
+  ]);
+  gameEl.innerHTML = `
+    <div class="card">
+      <p class="flash-progress">Chat ${chatIdx+1} / ${chatDeck.length} — pick the reply that makes sense</p>
+      <div class="avatar">🧑🏾</div>
+      <div class="bubble">
+        <div class="shona">${d.prompt}</div>
+        <div class="eng">${d.promptEng}</div>
+      </div>
+      <div class="reply-list" id="replyList">
+        ${options.map(o => `
+          <div class="reply-btn" data-ok="${o.ok}" onclick="pickReply(this)">
+            <span class="rs">${o.shona}</span>
+            <span class="re">${o.eng}</span>
+          </div>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+}
+function pickReply(el){
+  if(chatAnswered) return;
+  const d = chatDeck[chatIdx];
+  const ok = el.dataset.ok === 'true';
+  const feedback = document.getElementById('feedback');
+  if(ok){
+    chatAnswered = true; stars++; sessionProgress++; updateProgress();
+    recordChatCorrect(d);
+    el.classList.add('correct');
+    feedback.innerHTML = `<div class="fact">🌟 Great reply — a real conversation!</div>
+      <div class="controls" style="margin-top:12px;"><button class="action btn-next" onclick="nextChat()">Next ➡️</button></div>`;
+  } else {
+    el.classList.add('wrong'); // stays disabled — no repeat-clicking the same wrong option
+    feedback.innerHTML = `<div class="fact" style="border-color:#F3A6A0;">Listen to what was said again, then pick the reply that fits.</div>`;
+  }
+}
+function nextChat(){
+  if(chatIdx < chatDeck.length - 1){ chatIdx++; renderChat(); }
+  else { gameEl.innerHTML = finaleHtml("You had a whole conversation in Shona!", `switchTrack('${track}')`, 'Play again'); }
+}
+
+/* ================= shared ================= */
+function finaleHtml(message, restartFn, restartLabel){
+  return `
+    <div class="card finale">
+      <span class="big">🎉</span>
+      <h2>${message}</h2>
+      <div class="controls" style="margin-top:16px;">
+        <button class="action btn-gotit" onclick="${restartFn}">${restartLabel}</button>
+      </div>
+    </div>`;
+}
+
+/* ================= REWARDS ================= */
+function updateRewardDot(){
+  const dot = document.getElementById('rewardDot');
+  if(!dot) return;
+  const todayKey = shonaDateKey();
+  const playedToday = dayCounts(todayKey);
+  const claimedToday = !!(progress.claimedDates && progress.claimedDates[todayKey]);
+  dot.style.display = (playedToday && !claimedToday) ? 'inline-block' : 'none';
+}
+function showRewards(){
+  stopShonaTimer();
+  currentCategory = 'Rewards';
+  catsNav.innerHTML = '';
+  document.getElementById('trackRemi').classList.remove('active');
+  document.getElementById('trackMicah').classList.remove('active');
+  document.getElementById('trackProgress').classList.remove('active');
+  document.getElementById('trackRewards').classList.add('active');
+  subtitleText.textContent = "Practice every day to fill up the treasure path!";
+
+  progress.dailyPlayed = progress.dailyPlayed || {};
+  progress.claimedDates = progress.claimedDates || {};
+  const streak = computeShonaStreak();
+  const todayKey = shonaDateKey();
+  const playedToday = dayCounts(todayKey);
+  const claimedToday = !!progress.claimedDates[todayKey];
+  const canClaim = playedToday && !claimedToday;
+  const todaySlotIndex = playedToday ? (streak - 1 + 7) % 7 : streak % 7;
+
+  const rows = DAILY_REWARDS.map((r, i) => {
+    let stateClass = 'locked';
+    let nodeIcon = '🔒';
+    let claimBtn = '';
+    if(i < todaySlotIndex || (i === todaySlotIndex && claimedToday)){
+      stateClass = 'claimed'; nodeIcon = '✓';
+    } else if(i === todaySlotIndex && canClaim){
+      stateClass = 'today'; nodeIcon = '🎁';
+      claimBtn = `<button class="action btn-gotit" style="padding:6px 14px; font-size:.82rem;" onclick="claimTodayReward(${i})">Claim!</button>`;
+    }
+    return `
+      <div class="reward-row ${stateClass}">
+        <span class="reward-node">${nodeIcon}</span>
+        <span class="reward-icon">${r.icon}</span>
+        <div class="reward-info">
+          <div class="reward-label">${r.label}</div>
+          <div class="reward-sub">${r.sub}</div>
+        </div>
+        ${claimBtn}
+      </div>`;
+  }).join('');
+
+  const badgesHtml = (progress.badges && progress.badges.length)
+    ? `<div class="badge-row">${progress.badges.map(b => `<span class="badge-chip">${b}</span>`).join('')}</div>`
+    : `<p class="empty-note">No badges yet — reach a Rare or Mega Chest to earn one!</p>`;
+
+  const subMsg = canClaim ? "Today's reward is ready!" : (playedToday ? "Come back tomorrow for the next one" : "Practice today to keep your streak going");
+
+  gameEl.innerHTML = `
+    <div class="card">
+      <div class="streak-header">
+        <div class="flame">🔥</div>
+        <div class="count">${streak} day${streak===1?'':'s'}</div>
+        <div class="sub">${subMsg}</div>
+      </div>
+      <div class="reward-path">${rows}</div>
+      <p class="section-title">Badges</p>
+      ${badgesHtml}
+    </div>`;
+  updateRewardDot();
+}
+function claimTodayReward(i){
+  const todayKey = shonaDateKey();
+  progress.claimedDates = progress.claimedDates || {};
+  if(progress.claimedDates[todayKey]) { showRewards(); return; } // already claimed — guard against a double click
+  progress.claimedDates[todayKey] = true;
+  const reward = DAILY_REWARDS[i];
+  reward.apply();
+  saveProgress();
+  gameEl.innerHTML = `
+    <div class="card chest-reveal" id="chestReveal">
+      <span class="big">${reward.icon}</span>
+      <h2>${reward.label}!</h2>
+      <p>${reward.sub}</p>
+      <div class="controls" style="margin-top:14px;"><button class="action btn-gotit" onclick="showRewards()">Awesome! ➡️</button></div>
+    </div>`;
+  confettiBurst(document.getElementById('chestReveal'), i === 6 ? 26 : 14);
+  updateRewardDot();
+}
+
+/* ================= PROGRESS ================= */
+function showProgress(){
+  stopShonaTimer();
+  currentCategory = 'Progress';
+  catsNav.innerHTML = '';
+  document.getElementById('trackRemi').classList.remove('active');
+  document.getElementById('trackMicah').classList.remove('active');
+  document.getElementById('trackRewards').classList.remove('active');
+  document.getElementById('trackProgress').classList.add('active');
+  subtitleText.textContent = "A look at what Remi and Micah have learned so far";
+
+  const chatDone = Object.keys(progress.chatCompleted || {}).length;
+  const lifetime = Number.isInteger(progress.lifetimeStars) ? progress.lifetimeStars : progress.lifetimeStars.toFixed(1);
+  const sessionCount = progress.sessions ? progress.sessions.length : 0;
+  const lastPlayed = progress.lastPlayed ? new Date(progress.lastPlayed).toLocaleDateString(undefined, { day:'numeric', month:'short' }) : '—';
+
+  const catRows = CATEGORIES.map(cat => {
+    const wordsInCat = Object.entries(progress.wordStats).filter(([w, s]) => s.category === cat);
+    const correct = wordsInCat.reduce((sum, [, s]) => sum + s.correct, 0);
+    const wrong = wordsInCat.reduce((sum, [, s]) => sum + s.wrong, 0);
+    const total = correct + wrong;
+    const acc = total ? Math.round((correct / total) * 100) : null;
+    return `<tr><td>${categoryEmoji(cat)} ${cat}</td><td>${wordsInCat.length}</td><td>${acc === null ? '—' : acc + '%'}</td></tr>`;
+  }).join('');
+
+  const tricky = Object.entries(progress.wordStats)
+    .filter(([w, s]) => s.wrong > 0)
+    .sort((a,b) => (b[1].wrong - b[1].correct) - (a[1].wrong - a[1].correct))
+    .slice(0, 10);
+
+  gameEl.innerHTML = `
+    <div class="card">
+      <p class="flash-progress" style="margin-bottom:6px;">What's been learned so far</p>
+      ${!storageAvailable ? `<p class="empty-note" style="background:rgba(243,166,160,.15); border:1px solid #F3A6A0; border-radius:12px; padding:8px;">⚠️ Progress isn't saving right now (this can happen if the app is opened outside Claude). Numbers below are for this visit only.</p>` : ''}
+      <div class="stat-grid">
+        <div class="stat-box"><div class="num">${lifetime}</div><div class="lbl">all-time stars</div></div>
+        <div class="stat-box"><div class="num">🔥 ${computeShonaStreak()}</div><div class="lbl">day streak</div></div>
+        <div class="stat-box"><div class="num">${Math.round((getTodaySecondsShona()/60)*10)/10} min</div><div class="lbl">today (of 10)</div></div>
+        <div class="stat-box"><div class="num">${chatDone}</div><div class="lbl">chats mastered</div></div>
+        <div class="stat-box"><div class="num">${sessionCount}</div><div class="lbl">sessions played</div></div>
+        <div class="stat-box"><div class="num">${lastPlayed}</div><div class="lbl">last played</div></div>
+      </div>
+
+      <p class="section-title">By category</p>
+      <table class="cat-table">
+        <thead><tr><th>Category</th><th>Words tried</th><th>Accuracy</th></tr></thead>
+        <tbody>${catRows}</tbody>
+      </table>
+
+      <p class="section-title">Words to review</p>
+      ${tricky.length
+        ? tricky.map(([w, s]) => `<span class="review-chip"><b>${w}</b> — ${s.wrong} miss${s.wrong>1?'es':''}</span>`).join('')
+        : `<p class="empty-note">No tricky words yet — nice work!</p>`}
+
+      <div class="controls" style="margin-top:20px;">
+        <button class="action btn-next" onclick="confirmResetShonaProgress()">🗑️ Reset progress</button>
+      </div>
+    </div>`;
+}
+function confirmResetShonaProgress(){
+  gameEl.querySelector('.card').insertAdjacentHTML('beforeend', `
+    <div class="feedback">
+      <div class="fact">This clears all saved Shona progress. Are you sure?</div>
+      <div class="controls" style="margin-top:10px;">
+        <button class="action btn-next" onclick="doResetShonaProgress()">Yes, reset</button>
+        <button class="action btn-reveal" onclick="showProgress()">Cancel</button>
+      </div>
+    </div>`);
+}
+async function doResetShonaProgress(){
+  progress = { wordStats:{}, chatCompleted:{}, lifetimeStars:0, sessions: progress.sessions || [], lastPlayed:null, dailyPlayed:{}, dailyMinutes:{}, claimedDates:{}, badges:[], doubleStarsRemaining:0 };
+  await saveProgress();
+  showProgress();
+}
+
+// ---------- init ----------
+document.getElementById('trackRemi').classList.add('active');
+renderCategoryNav();
+loadProgress().then(() => { updateRewardDot(); updateTimerDisplay(); startDeck(); });
+</script>
+</body>
+</html>
